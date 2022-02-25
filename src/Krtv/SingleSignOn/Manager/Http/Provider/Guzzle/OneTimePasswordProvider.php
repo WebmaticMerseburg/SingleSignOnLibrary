@@ -51,7 +51,16 @@ class OneTimePasswordProvider implements ProviderInterface
     public function fetch($otp)
     {
         try {
-            $response = $this->client->request('GET', sprintf('%s?_otp=%s', $this->resource, $otp));
+            $url = sprintf('%s?_otp=%s', $this->resource, $otp);
+            if (null !== $this->logger) {
+                $this->logger->debug(__METHOD__, [
+                    'resource' => $this->resource,
+                    'otp' => $otp,
+                    'url' => $url
+                ]);
+            }
+
+            $response = $this->client->request('GET', $url);
 
             // JMSSerializer here ??
             $data = json_decode($response->getBody()->getContents(), true);
