@@ -55,20 +55,23 @@ class OneTimePasswordProvider implements ProviderInterface
 
             $response = $this->client->request('GET', $url);
 
+            // JMSSerializer here ??
+            $contents = $response->getBody()->getContents();
+
             if (null !== $this->logger) {
                 $this->logger->debug(__METHOD__, [
                     'resource' => $this->resource,
                     'otp' => $otp,
                     'url' => $url,
-                    'response' => $response
+                    'response' => $response,
+                    'contents' => $contents
                 ]);
             }
 
-            // JMSSerializer here ??
-            $data = json_decode($response->getBody()->getContents(), true);
+            $data = json_decode($contents, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 if (null !== $this->logger) {
-                    $this->logger->error(sprintf('json_decode error. Gateway response: %s', $response->getBody()->getContents()));
+                    $this->logger->error(sprintf('json_decode error. Gateway response: %s', $contents));
                 }
 
                 return null;
